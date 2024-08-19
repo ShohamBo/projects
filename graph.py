@@ -1,18 +1,18 @@
+from sqlite3 import Connection
+
 import dash
 import sqlite3
 import pandas as pd
 from dash import dcc, html
 import plotly.express as px
+from flask import g
+import threading
 
-
-def run_dashboard(db_name="files.db"):
+def run_dashboard():
     app = dash.Dash(__name__)
-
     def fetch_data():
-        localdb = sqlite3.connect(db_name)
-        df = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', localdb)
-        localdb.close()
-        return df
+        localdb = sqlite3.connect("files.db")
+        return pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', localdb)
 
     df = fetch_data()
     app.layout = html.Div([
@@ -38,13 +38,13 @@ def run_dashboard(db_name="files.db"):
         [dash.dependencies.Input('updates', 'n_intervals')]
     )
     def update_graph(n):
-        df = fetch_data()
-        change_bar = px.bar(df, x='name', y='file_size', title='file_size_bar')
-        change_pie = px.pie(df, names='is_text', title='text_or_binary_files')
-        change_pie2 = px.pie(df, names='file_type', title='file_type_pie')
+        update_df = fetch_data()
+        change_bar = px.bar(update_df, x='name', y='file_size', title='file_size_bar')
+        change_pie = px.pie(update_df, names='is_text', title='text_or_binary_files')
+        change_pie2 = px.pie(update_df, names='file_type', title='file_type_pie')
         return change_bar, change_pie, change_pie2
-
     app.run_server(debug=True, use_reloader=False)
 
 
-run_dashboard()
+if __name__ == '__main__':
+    run_dashboard()

@@ -6,6 +6,7 @@ import dash
 from dash import dcc, html
 import plotly.express as px
 import magic
+import pathlib
 
 
 def extract_name(filename):
@@ -31,7 +32,6 @@ def extract_data(path, filename):
 def track_changes(path):
     localdb = sqlite3.connect("files.db")
     cursor = localdb.cursor()
-
     prev_version = set()
 
     while True:
@@ -59,4 +59,5 @@ def track_changes(path):
             localdb.commit()
         time.sleep(10)
 
-track_changes(r"C:\Users\shoam\OneDrive\Desktop\random folder")
+if __name__ == '__main__':
+    track_changes(r"C:\Users\shoam\OneDrive\Desktop\random folder")
