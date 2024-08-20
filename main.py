@@ -1,16 +1,14 @@
-import __init__
-from track_folder import track_changes
+import asyncio
+
 import graph
-import threading
+from track_folder import track_changes
 
 
-def main():
+async def main():
     path = r"C:\Users\shoam\OneDrive\Desktop\random folder"
-    thread = threading.Thread(target=track_changes, args=(path,))
-    thread.start()
-    graph.run_dashboard()
-    thread.join()
+    await asyncio.gather(track_changes(path), graph.run_dashboard())
 
 
+asyncio.run(main())
 if __name__ == '__main__':
     main()

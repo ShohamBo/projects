@@ -1,12 +1,8 @@
+import asyncio
 import os
-import time
-import pandas as pd
 import sqlite3
-import dash
-from dash import dcc, html
-import plotly.express as px
+import time
 import magic
-import pathlib
 
 
 def extract_name(filename):
@@ -26,15 +22,17 @@ def extract_data(path, filename):
     text = mime_type.from_file(full_path)
     is_text = 0 if 'text' in text else 1 if 'video' in text else -1
     return (
-        filename.removesuffix(file_type), time_created, time_modified, time_removed, file_size, file_type, int(is_text))
+        os.path.splitext(filename)[0], time_created, time_modified, time_removed, file_size, file_type, int(is_text))
+    os.path.s
 
 
-def track_changes(path):
+async def track_changes(path):
     localdb = sqlite3.connect("files.db")
     cursor = localdb.cursor()
     prev_version = set()
 
     while True:
+        await asyncio.sleep(5)
         current_version = set(os.listdir(path))
         if current_version != prev_version:
             added = current_version - prev_version
@@ -50,6 +48,13 @@ def track_changes(path):
                         INSERT INTO files (name, time_created, time_modified, time_deleted, file_size, file_type, is_text)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
                     ''', extract_data(path, file))
+                # if exs.get('is_deleted') is not None:
+                #     cursor.execute('''
+                #     UPDATE files
+                #     SET *
+                #     WHERE name=?
+                #
+                #     '''), extract_data(path, file)
             for file in removed:
                 cursor.execute('''
                     UPDATE files
@@ -57,7 +62,7 @@ def track_changes(path):
                     WHERE name = ?
                 ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), extract_name(file)))
             localdb.commit()
-        time.sleep(10)
+
 
 if __name__ == '__main__':
     track_changes(r"C:\Users\shoam\OneDrive\Desktop\random folder")
