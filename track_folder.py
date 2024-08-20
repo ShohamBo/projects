@@ -40,7 +40,9 @@ async def track_changes(path):
     while True:
         await asyncio.sleep(5)
         current_version = set(os.listdir(path))
+        print(f"running check... prev_count: {len(prev_version)}, current_count: {len(current_version)}")
         if current_version != prev_version:
+            print('proccessing changes')
             added = current_version - prev_version
             removed = prev_version - current_version
             prev_version = current_version
