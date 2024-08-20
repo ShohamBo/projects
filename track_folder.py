@@ -3,9 +3,12 @@ import os
 import sqlite3
 import time
 import magic
+global_count_queue = 0
 
+def return_count():
+    return global_count_queue
 def extract_name(filename):
-    return (os.path.splitext(filename)[0])
+    return os.path.splitext(filename)[0]
 def extract_file_type(filename):
     return os.path.splitext(filename)[1]
 def is_removed(cursor, filename,file_type):
@@ -17,7 +20,7 @@ def is_removed(cursor, filename,file_type):
 
 # Extracts the data from a single file
 def extract_data(path, filename):
-    time.sleep(2)
+    #time.sleep(2)
     full_path = os.path.join(path, filename)
     if not os.path.isfile(full_path):
         return None
@@ -36,17 +39,18 @@ def extract_data(path, filename):
 async def track_changes(path):
     localdb = sqlite3.connect("files.db")
     cursor = localdb.cursor()
-    prev_version = set()
-
+    prev_version = set(cursor.execute('SELECT name FROM files WHERE time_deleted IS NULL'))
     while True:
         await asyncio.sleep(1)
-        ## compare to db TODO ##
-        current_version = set(os.lsitdir(path))
+        current_version = set(os.listdir(path))
         if current_version != prev_version:
             added = current_version - prev_version
             removed = prev_version - current_version
             prev_version = current_version
             for file in added:
+                cur_count = 0
+                cur_count = cur_count + 1
+                global_count_queue = len(added) - cur_count - 1
                 file_data = extract_data(path, file)
                 if file_data is None:
                     continue
