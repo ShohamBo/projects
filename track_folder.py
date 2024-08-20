@@ -17,6 +17,7 @@ def is_removed(cursor, filename,file_type):
 
 # Extracts the data from a single file
 def extract_data(path, filename):
+    time.sleep(2)
     full_path = os.path.join(path, filename)
     if not os.path.isfile(full_path):
         return None
@@ -38,8 +39,9 @@ async def track_changes(path):
     prev_version = set()
 
     while True:
-        await asyncio.sleep(5)
-        current_version = set(os.listdir(path))
+        await asyncio.sleep(1)
+        ## compare to db TODO ##
+        current_version = set(os.lsitdir(path))
         if current_version != prev_version:
             added = current_version - prev_version
             removed = prev_version - current_version
