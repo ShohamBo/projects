@@ -1,10 +1,10 @@
+import asyncio
 import sqlite3
 
 import dash
 import pandas as pd
 import plotly.express as px
 from dash import dcc, html
-import asyncio
 
 
 async def run_dashboard():
@@ -44,9 +44,13 @@ async def run_dashboard():
         change_pie2 = px.pie(update_df, names='file_type', title='file_type_pie')
         return change_bar, change_pie, change_pie2
 
-    # await asyncio.sleep(10)
-    app.run_server(debug=True, use_reloader=False)
+    loop = asyncio.get_event_loop()
+
+    def run_my_server():
+        app.run_server(debug=True, use_reloader=False)
+
+    loop.run_in_executor(None, run_my_server)
 
 
 if __name__ == '__main__':
-    run_dashboard()
+    asyncio.run(run_dashboard())

@@ -1,5 +1,5 @@
 import sqlite3
-localdb = sqlite3.connect("folder_tracker.db")
+localdb = sqlite3.connect("files.db")
 cursor = localdb.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS files (
