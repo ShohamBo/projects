@@ -2,16 +2,19 @@ import asyncio
 import os
 import sqlite3
 import time
+
 import magic
 
 
 def extract_name(filename):
-    return filename.rstrip(os.path.splitext(filename)[1])
-
+    return os.path.splitext(filename)[0]
+def is_removed(path,filename):
+    if extract_data(path, filename).index(3) != none:
+        return True
+    else: return False
 
 # Extracts the data from a single file
 def extract_data(path, filename):
-    text_extensions = {'.txt', '.csv', '.html', '.xml'}
     full_path = os.path.join(path, filename)
     time_created = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getctime(full_path)))
     time_modified = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getmtime(full_path)))
@@ -20,10 +23,10 @@ def extract_data(path, filename):
     file_type = os.path.splitext(full_path)[1]
     mime_type = magic.Magic(mime=True)
     text = mime_type.from_file(full_path)
+    print("text")
     is_text = 0 if 'text' in text else 1 if 'video' in text else -1
     return (
         os.path.splitext(filename)[0], time_created, time_modified, time_removed, file_size, file_type, int(is_text))
-    os.path.s
 
 
 async def track_changes(path):
@@ -48,13 +51,13 @@ async def track_changes(path):
                         INSERT INTO files (name, time_created, time_modified, time_deleted, file_size, file_type, is_text)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
                     ''', extract_data(path, file))
-                # if exs.get('is_deleted') is not None:
-                #     cursor.execute('''
-                #     UPDATE files
-                #     SET *
-                #     WHERE name=?
-                #
-                #     '''), extract_data(path, file)
+                if is_removed(path, file):
+                    cursor.execute('''
+                    UPDATE files
+                    SET *
+                    WHERE name=?
+
+                    '''), extract_data(path, file)
             for file in removed:
                 cursor.execute('''
                     UPDATE files
