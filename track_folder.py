@@ -4,7 +4,6 @@ import sqlite3
 import time
 import magic
 
-
 def extract_name(filename):
     return (os.path.splitext(filename)[0])
 def extract_file_type(filename):
@@ -19,6 +18,8 @@ def is_removed(cursor, filename,file_type):
 # Extracts the data from a single file
 def extract_data(path, filename):
     full_path = os.path.join(path, filename)
+    if not os.path.isfile(full_path):
+        return None
     time_created = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getctime(full_path)))
     time_modified = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(os.path.getmtime(full_path)))
     time_removed = None
@@ -44,7 +45,9 @@ async def track_changes(path):
             removed = prev_version - current_version
             prev_version = current_version
             for file in added:
-                print(extract_data(path, file))
+                file_data = extract_data(path, file)
+                if file_data is None:
+                    continue
                 cursor.execute('''
                     SELECT * FROM files WHERE name=?
                 ''', (extract_name(file),))
@@ -53,14 +56,14 @@ async def track_changes(path):
                     cursor.execute('''
                         INSERT INTO files (name, time_created, time_modified, time_deleted, file_size, file_type, is_text)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
-                    ''', extract_data(path, file))
+                    ''', file_data)
                 else:
                     if is_removed(cursor,extract_name(file),extract_file_type(file)):
                         cursor.execute('''
                                 UPDATE files
                                 SET time_modified=?, time_deleted=?, file_size=?, file_type=?, is_text=?
                                 WHERE name=?
-                            ''', (*extract_data(path,file)[2:],(extract_name(file))))
+                            ''', (*file_data[2:],(extract_name(file))))
             for file in removed:
                 cursor.execute('''
                     UPDATE files
