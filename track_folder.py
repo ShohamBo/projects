@@ -3,17 +3,17 @@ import os
 import sqlite3
 import time
 import magic
-global_count_queue = 0
+queue_count = 0
 
 def return_count():
-    return global_count_queue
+    return queue_count
 def extract_name(filename):
     return os.path.splitext(filename)[0]
 def extract_file_type(filename):
     return os.path.splitext(filename)[1]
 def is_removed(cursor, filename,file_type):
     cursor.execute('''
-                SELECT * FROM files WHERE name=? AND file_type=? AND time_deleted is not NULL
+                SELECT * FROM files WHERE name=? AND file_type=? AND time_deleted is NOT NULL
                  ''', (filename, file_type))
     exs = cursor.fetchone()
     return exs
@@ -31,26 +31,27 @@ def extract_data(path, filename):
     file_type = os.path.splitext(full_path)[1]
     mime_type = magic.Magic(mime=True)
     text = mime_type.from_file(full_path)
-    is_text = 0 if 'text' in text else 1 if 'video' in text else -1
+    is_text = 0 if 'text' in text else 1 if 'video' in text or 'img' in text or 'image' in text else -1
     return (
-        os.path.splitext(filename)[0], time_created, time_modified, time_removed, file_size, file_type, int(is_text))
+        extract_name(filename), time_created, time_modified, time_removed, file_size, file_type, int(is_text))
 
 #tracks the changes in folder
 async def track_changes(path):
+    global queue_count
     localdb = sqlite3.connect("files.db")
     cursor = localdb.cursor()
-    prev_version = set(cursor.execute('SELECT name FROM files WHERE time_deleted IS NULL'))
+    prev_version = set(f"({row[0]}{row[1]})" for row in cursor.execute('SELECT name,file_type FROM files WHERE time_deleted IS NULL'))
     while True:
-        await asyncio.sleep(1)
-        current_version = set(os.listdir(path))
+        await asyncio.sleep(0.2)
+        current_version = set(f"{extract_name(file)}{extract_file_type(file)}" for file in os.listdir(path))
         if current_version != prev_version:
             added = current_version - prev_version
             removed = prev_version - current_version
             prev_version = current_version
+            cur_count = 0
             for file in added:
-                cur_count = 0
                 cur_count = cur_count + 1
-                global_count_queue = len(added) - cur_count - 1
+                queue_count = len(added) - cur_count
                 file_data = extract_data(path, file)
                 if file_data is None:
                     continue
@@ -69,13 +70,14 @@ async def track_changes(path):
                                 UPDATE files
                                 SET time_modified=?, time_deleted=?, file_size=?, file_type=?, is_text=?
                                 WHERE name=?
-                            ''', (*file_data[2:],(extract_name(file))))
+                            ''', (*file_data[2:],extract_name(file)))
             for file in removed:
+                name = extract_name(str(file))
                 cursor.execute('''
                     UPDATE files
                     SET time_deleted = ?
                     WHERE name = ?
-                ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), extract_name(file)))
+                ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),name))
             localdb.commit()
 
 if __name__ == '__main__':
