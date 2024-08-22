@@ -47,8 +47,7 @@ def remove_file_from_db(filename):
             UPDATE files
             SET time_deleted = ?
             WHERE name = ?
-        ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), filename))
-    commit_db()
+        ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),filename,))
 
 
 def is_file_in_db(filename):
@@ -59,15 +58,16 @@ def is_file_in_db(filename):
     return bool(cursor.fetchone())
 
 
-def unremove_files_from_db(filename):
-    global cursor
-    cursor.execute('''
-                        UPDATE files
-                        SET time_modified=?, time_deleted=?, file_size=?, file_type=?, is_text=?
-                        WHERE name=?
-                    ''', (*extract_data(filename)[2:], filename))
-    commit_db()
-
+def change_returning_files(filename):
+    localdba = sqlite3.connect('files.db')
+    cur = localdba.cursor()
+    cur.execute('''
+                    UPDATE files
+                    SET time_deleted=?
+                    WHERE name=?
+                ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), filename,))
+    localdba.commit()
+    print(fetch_data().to_string())
 
 def fetch_data():
     df = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', localdb)

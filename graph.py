@@ -14,9 +14,7 @@ async def run_dashboard():
     app = dash.Dash(__name__)
     global is_text_translator
     df = fetch_data()
-    print(df.to_string())
     count_file_size_df = df_count_by_binary_type(None)
-    print(count_file_size_df.to_string())
     app.layout = html.Div([
 
         dcc.Graph(
@@ -51,7 +49,6 @@ async def run_dashboard():
          dash.dependencies.Input('videos_only', 'n_clicks')]
     )
     def update_graph(n, btn1, btn2, btn3):
-        print("here")
         update_df = fetch_data()
         global global_mode
         if 'all_files' == ctx.triggered_id:
@@ -75,7 +72,6 @@ async def run_dashboard():
                 df_binary = df_count_by_binary_type(1)
                 update_df = df_full_by_binary_count(1)
             else: df_binary = df_count_by_binary_type(None)
-        print(get_db_live_files())
         count_queue = queue_count
         change_histogram = px.histogram(df_binary, y='count', x='file_size', title='file_size_histogram')
         change_pie = px.pie(update_df, names='is_text', title='text_or_binary_files')
@@ -85,7 +81,6 @@ async def run_dashboard():
     loop = asyncio.get_event_loop()
 
     def run_my_server():
-        print("here")
         app.run_server(debug=True, use_reloader=False)
 
     loop.run_in_executor(None, run_my_server)

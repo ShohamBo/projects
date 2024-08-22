@@ -6,7 +6,7 @@ from track_folder import track_changes
 
 async def main():
     path = r"C:\Users\shoam\OneDrive\Desktop\random folder"
-    await asyncio.gather(track_changes(path), run_dashboard())  # both function run indefently
+    await asyncio.gather(track_changes(path), run_dashboard())  # both function run indefinitely
 
 
 asyncio.run(main())

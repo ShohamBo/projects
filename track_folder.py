@@ -26,10 +26,10 @@ async def track_changes(path):
                     continue
                 if not is_file_in_db(extract_name(file)) and file not in db_deleted_files:
                     add_file_to_db(file)
-                elif is_file_in_db(extract_name(file)):
-                    continue
                 elif file in db_deleted_files:
-                    unremove_files_from_db(extract_name(file))
+                    change_returning_files(extract_name(file))
+                elif is_file_in_db(extract_name(file)):
+                    pass
             for file in removed:
                 remove_file_from_db(extract_name(file))
 
