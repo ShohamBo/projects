@@ -1,8 +1,10 @@
 import asyncio
 import os
-import sqlite3
 import time
 import magic
+import sqlite3
+
+from sql_queries import get_db_live_files ## TODO ##
 queue_count = 0
 
 def return_count():
@@ -40,9 +42,16 @@ async def track_changes(path):
     global queue_count
     localdb = sqlite3.connect("files.db")
     cursor = localdb.cursor()
+
+    ## TODO ##
+    # db_live_files
+    # db_deleted_files
+    # folder_files
+
     prev_version = set(f"{row[0]}{row[1]}" for row in cursor.execute('SELECT name,file_type FROM files WHERE time_deleted IS NULL'))
     while True:
         await asyncio.sleep(0.2)
+
         current_version = set(f"{extract_name(file)}{extract_file_type(file)}" for file in os.listdir(path))
         if current_version != prev_version:
             added = current_version - prev_version
