@@ -20,7 +20,7 @@ def is_removed(cursor, filename,file_type):
 
 # Extracts the data from a single file
 def extract_data(path, filename):
-    #time.sleep(2)
+    time.sleep(2)
     full_path = os.path.join(path, filename)
     if not os.path.isfile(full_path):
         return None
@@ -40,7 +40,7 @@ async def track_changes(path):
     global queue_count
     localdb = sqlite3.connect("files.db")
     cursor = localdb.cursor()
-    prev_version = set(f"({row[0]}{row[1]})" for row in cursor.execute('SELECT name,file_type FROM files WHERE time_deleted IS NULL'))
+    prev_version = set(f"{row[0]}{row[1]}" for row in cursor.execute('SELECT name,file_type FROM files WHERE time_deleted IS NULL'))
     while True:
         await asyncio.sleep(0.2)
         current_version = set(f"{extract_name(file)}{extract_file_type(file)}" for file in os.listdir(path))
@@ -71,6 +71,7 @@ async def track_changes(path):
                                 SET time_modified=?, time_deleted=?, file_size=?, file_type=?, is_text=?
                                 WHERE name=?
                             ''', (*file_data[2:],extract_name(file)))
+                localdb.commit()
             for file in removed:
                 name = extract_name(str(file))
                 cursor.execute('''
@@ -78,6 +79,7 @@ async def track_changes(path):
                     SET time_deleted = ?
                     WHERE name = ?
                 ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),name))
+                localdb.commit()
             localdb.commit()
 
 if __name__ == '__main__':
