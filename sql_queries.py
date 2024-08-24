@@ -1,6 +1,8 @@
 import sqlite3
 import time
+
 import pandas as pd
+
 from folder_functions import extract_data
 
 is_text_translator = {0: 'text', 1: 'video', -1: 'no clue'}
@@ -47,7 +49,8 @@ def remove_file_from_db(filename):
             UPDATE files
             SET time_deleted = ?
             WHERE name = ?
-        ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),filename,))
+        ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), filename,))
+    commit_db()
 
 
 def is_file_in_db(filename):
@@ -59,23 +62,24 @@ def is_file_in_db(filename):
 
 
 def change_returning_files(filename):
-    localdba = sqlite3.connect('files.db')
-    cur = localdba.cursor()
-    cur.execute('''
+    cursor.execute('''
                     UPDATE files
-                    SET time_deleted=?
+                    SET time_deleted=NULL
                     WHERE name=?
-                ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), filename,))
-    localdba.commit()
-    print(fetch_data().to_string())
+                ''', (filename,))
+    commit_db()
+
 
 def fetch_data():
+    localdb = sqlite3.connect('files.db')
+    cursor = localdb.cursor()
     df = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', localdb)
     df['is_text'] = df['is_text'].map(is_text_translator)
     return df
 
 
 def df_full_by_binary_count(is_text):
+    localdb = sqlite3.connect('files.db')
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
             'SELECT * FROM files WHERE time_deleted IS NULL AND is_text = ?', localdb,
@@ -91,6 +95,7 @@ def df_full_by_binary_count(is_text):
 
 
 def df_count_by_binary_type(is_text):
+    localdb = sqlite3.connect('files.db')
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
             'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL AND is_text = ? GROUP BY file_size',
@@ -101,3 +106,9 @@ def df_count_by_binary_type(is_text):
         df = pd.read_sql_query(
             'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL GROUP BY file_size', localdb)
         return df
+
+
+def fetch_fulldb():
+    df = pd.read_sql_query('SELECT * FROM files', localdb)
+    df['is_text'] = df['is_text'].map(is_text_translator)
+    return df
