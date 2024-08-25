@@ -3,10 +3,10 @@ import time
 
 import pandas as pd
 
-from folder_functions import extract_data
+from src.folder_functions import extract_data
 
 is_text_translator = {0: 'text', 1: 'video', -1: 'no clue'}
-localdb = sqlite3.connect('files.db')
+localdb = sqlite3.connect(r'dbs/files.db')
 global cursor
 cursor = localdb.cursor()
 
@@ -71,7 +71,7 @@ def change_returning_files(filename):
 
 
 def fetch_data():
-    localdb = sqlite3.connect('files.db')
+    localdb = sqlite3.connect('dbs/files.db')
     cursor = localdb.cursor()
     df = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', localdb)
     df['is_text'] = df['is_text'].map(is_text_translator)
@@ -79,7 +79,7 @@ def fetch_data():
 
 
 def df_full_by_binary_count(is_text):
-    localdb = sqlite3.connect('files.db')
+    localdb = sqlite3.connect('dbs/files.db')
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
             'SELECT * FROM files WHERE time_deleted IS NULL AND is_text = ?', localdb,
@@ -95,7 +95,7 @@ def df_full_by_binary_count(is_text):
 
 
 def df_count_by_binary_type(is_text):
-    localdb = sqlite3.connect('files.db')
+    localdb = sqlite3.connect('dbs/files.db')
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
             'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL AND is_text = ? GROUP BY file_size',
@@ -108,7 +108,3 @@ def df_count_by_binary_type(is_text):
         return df
 
 
-def fetch_fulldb():
-    df = pd.read_sql_query('SELECT * FROM files', localdb)
-    df['is_text'] = df['is_text'].map(is_text_translator)
-    return df
