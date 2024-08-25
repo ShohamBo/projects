@@ -1,14 +1,24 @@
 import asyncio
-import os
-import time
-import magic
-import sqlite3
-from sql_queries import *
-from folder_functions import *
+
+from src.folder_functions import *
+from src.sql_queries import *
+
 queue_count = 0
 
-#tracks the changes in folder
+log_file_path = '/app/log/app.log'
+os.makedirs(os.path.dirname(log_file_path), exist_ok=True)  # Ensure the logs directory exists
+
+logging.basicConfig(
+    filename=log_file_path,
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logging.info("this is not a banger")
+
+
+# tracks the changes in folder
 async def track_changes(path):
+    logging.info(f'Tracking {path}')
     global queue_count
     while True:
         await asyncio.sleep(0.2)
@@ -20,9 +30,10 @@ async def track_changes(path):
             removed = db_live_files - folder_files
             cur_count = 0
             for file in added:
+                logging.info(f'Adding {file}')
                 cur_count = cur_count + 1
                 queue_count = len(added) - cur_count
-                if extract_data(file) is None:
+                if extract_data(path, file) is None:
                     continue
                 if not is_file_in_db(extract_name(file)) and file not in db_deleted_files:
                     add_file_to_db(file)
@@ -32,6 +43,3 @@ async def track_changes(path):
                     pass
             for file in removed:
                 remove_file_from_db(extract_name(file))
-
-if __name__ == '__main__':
-    asyncio.run(track_changes(r"C:\Users\shoam\OneDrive\Desktop\random folder"))

@@ -4,8 +4,8 @@ import dash
 import plotly.express as px
 from dash import ctx
 from dash import dcc, html
-from track_folder import queue_count
-from sql_queries import df_count_by_binary_type, df_full_by_binary_count, fetch_data, get_db_live_files
+from src.track_folder import queue_count
+from src.sql_queries import df_count_by_binary_type, df_full_by_binary_count, fetch_data, get_db_live_files
 global_mode = -2
 global is_text_translator
 
@@ -81,10 +81,8 @@ async def run_dashboard():
     loop = asyncio.get_event_loop()
 
     def run_my_server():
-        app.run_server(debug=True, use_reloader=False)
+        app.run_server(port=8000, debug=True, use_reloader=False,host='0.0.0.0')
 
     loop.run_in_executor(None, run_my_server)
 
 
-if __name__ == '__main__':
-    asyncio.run(run_dashboard())

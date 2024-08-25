@@ -1,11 +1,10 @@
-import __init__
 import asyncio
-from graph import run_dashboard
-from track_folder import track_changes
+from src.graph import run_dashboard
+from src.track_folder import track_changes
 
 
 async def main():
-    path = r"C:\Users\shoam\OneDrive\Desktop\random folder"
+    path = 'local_data'
     await asyncio.gather(track_changes(path), run_dashboard())  # both function run indefinitely
 
 

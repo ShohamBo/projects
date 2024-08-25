@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 import magic
@@ -12,8 +13,7 @@ def extract_file_type(filename):
 
 
 # Extracts the data from a single file
-def extract_data(filename):
-    path = r"C:\Users\shoam\OneDrive\Desktop\random folder"
+def extract_data(path, filename):
     # time.sleep(2)
     full_path = os.path.join(path, filename)
     if not os.path.isfile(full_path):
