@@ -5,6 +5,11 @@ from src.sql_queries import *
 
 queue_count = 0
 
+
+def fqueue_count():
+    return queue_count
+
+
 log_file_path = '/app/log/app.log'
 os.makedirs(os.path.dirname(log_file_path), exist_ok=True)  # Ensure the logs directory exists
 

@@ -4,7 +4,7 @@ import dash
 import plotly.express as px
 from dash import ctx
 from dash import dcc, html
-from src.track_folder import queue_count
+from src.track_folder import fqueue_count
 from src.sql_queries import df_count_by_binary_type, df_full_by_binary_count, fetch_data, get_db_live_files
 global_mode = -2
 global is_text_translator
@@ -29,7 +29,7 @@ async def run_dashboard():
             id='file_type_pie',
             figure=px.pie(df, names='file_type', title='file_type_pie')
         ),
-        html.Div(queue_count, id='queue_count'),
+        html.Div(fqueue_count(), id='queue_count'),
         html.Div([
             html.Button('All Files', id='all_files', n_clicks=0),
             html.Button('Text Only', id='text_only', n_clicks=0),
@@ -72,7 +72,7 @@ async def run_dashboard():
                 df_binary = df_count_by_binary_type(1)
                 update_df = df_full_by_binary_count(1)
             else: df_binary = df_count_by_binary_type(None)
-        count_queue = queue_count
+        count_queue = fqueue_count()
         change_histogram = px.histogram(df_binary, y='count', x='file_size', title='file_size_histogram')
         change_pie = px.pie(update_df, names='is_text', title='text_or_binary_files')
         change_pie2 = px.pie(update_df, names='file_type', title='file_type_pie')
