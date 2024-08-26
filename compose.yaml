@@ -1,0 +1,17 @@
+
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Specify the Dockerfile if not named 'Dockerfile'
+
+    volumes:
+      - C:/Users/shoam/OneDrive/Desktop/random folder:/app/local_data
+      - db:/app/dbs
+
+    ports:
+      - "8000:8000"
+
+volumes:
+  db:

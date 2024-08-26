@@ -34,12 +34,12 @@ def get_db_deleted_files():
                cursor.execute('SELECT name,file_type FROM files WHERE time_deleted IS NOT NULL'))
 
 
-def add_file_to_db(db_file):
+def add_file_to_db(path, db_file):
     global cursor
     cursor.execute('''
             INSERT INTO files (name, time_created, time_modified, time_deleted, file_size, file_type, is_text)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', extract_data(db_file))
+        ''', extract_data(path, db_file))
     commit_db()
 
 
