@@ -1,3 +1,5 @@
+dash
 pandas
 python-magic
+plotly.express
 psycopg2-binary

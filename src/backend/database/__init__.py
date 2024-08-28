@@ -1,12 +1,6 @@
-import pyodbc
-
-server = 'localhost,1433'
-database = 'files'
-username = 'hello'
-password = 'asafba'
-driver = '{ODBC Driver 17 for SQL Server}'
-connection_string = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
-conn = pyodbc.connect(connection_string)
+import psycopg2
+from settings import (connection_string)
+conn = psycopg2.connect(connection_string)
 cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS files (

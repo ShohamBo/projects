@@ -1,30 +1,21 @@
 import time
-
 import pandas as pd
-import pyodbc
-
-from __init__ import connection_string
-from src import extract_data
+import psycopg2
+from settings import connection_string
+from ..tracker.folder_functions import extract_data
 
 is_text_translator = {0: 'text', 1: 'video', -1: 'no clue'}
-db = pyodbc.connect(connection_string)
+db = psycopg2.connect(connection_string)
 global cursor
 cursor = db.cursor()
-
-
-# def create_connection():
-#
-#     localdb = sqlite3.connect('files.db')
-#     cursor = localdb.cursor()
-#     return cursor
 
 
 def commit_db():
     db.commit()
 
 
-def newconnection(connection_string):
-    db = pyodbc.connect(connection_string)
+def new_connection(connection_string):
+    db = psycopg2.connect(connection_string)
     return db
 
 
@@ -77,14 +68,14 @@ def change_returning_files(filename):
 
 
 def fetch_data():
-    db = newconnection(connection_string)
+    db = new_connection(connection_string)
     df = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', db)
     df['is_text'] = df['is_text'].map(is_text_translator)
     return df
 
 
 def df_full_by_binary_count(is_text):
-    db = newconnection(connection_string)
+    db = new_connection(connection_string)
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
             'SELECT * FROM files WHERE time_deleted IS NULL AND is_text = ?', db,
@@ -100,7 +91,7 @@ def df_full_by_binary_count(is_text):
 
 
 def df_count_by_binary_type(is_text):
-    db = newconnection(connection_string)
+    db = new_connection(connection_string)
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
             'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL AND is_text = ? GROUP BY file_size',
@@ -109,5 +100,5 @@ def df_count_by_binary_type(is_text):
         return df_modified
     else:
         df = pd.read_sql_query(
-            'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL GROUP BY file_size', localdb)
+            'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL GROUP BY file_size', db)
         return df

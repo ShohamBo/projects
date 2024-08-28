@@ -1,9 +1,11 @@
 
-
+networks:
+  app-tier:
+    driver: bridge
 services:
   dashboard:
     build:
-      context: src/frontend
+      context: ./src/frontend
       dockerfile: Dockerfile  # Specify the Dockerfile if not named 'Dockerfile'
 
     volumes:
@@ -14,7 +16,7 @@ services:
 
   update_db:
     build:
-      context: src/backend
+      context: ./src/backend
       dockerfile: Dockerfile
     volumes:
       - C:/Users/shoam/OneDrive/Desktop/random folder:/update_db/local_data
@@ -22,14 +24,13 @@ services:
     ports:
       - "8050:8050"
   sql_server_db:
-    image: mcr.microsoft.com/mssql/server
+    image: bitnami/postgresql:latest
     environment:
-      UID: "hello"
-      MSSQL_PID: "Developer"
-      MSSQL_SA_PASSWORD: "asafba"
-      ACCEPT_EULA: "Y"
+      POSTGRESQL_DB: "hello"
+      POSTGRESQL_USERNAME: "Developer"
+      POSTGRESQL_PASSWORD: "Asafba123!"
     ports:
-      - "1433:1433"
+      - "5432:5432"
 
 
 

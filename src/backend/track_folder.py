@@ -1,8 +1,8 @@
 import asyncio
 import logging
 import os
-from src.backend.database.sql_queries import *
-from src.backend.tracker.folder_functions import *
+from database.sql_queries_db import *
+from tracker.folder_functions import *
 queue_count = 0
 
 
