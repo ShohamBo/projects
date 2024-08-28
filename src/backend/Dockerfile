@@ -8,6 +8,9 @@ WORKDIR /update_db
 COPY . .
 
 
+RUN apt-get update
+RUN apt-get install -y libmagic1
+
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt

@@ -86,3 +86,5 @@ async def run_dashboard():
     loop.run_in_executor(None, run_my_server)
 
 
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()

@@ -7,7 +7,12 @@ services:
     build:
       context: ./src/frontend
       dockerfile: Dockerfile  # Specify the Dockerfile if not named 'Dockerfile'
-
+    depends_on:
+      - update_db
+    environment:
+      - DB_NAME=files_db
+      - DB_USERNAME=hello
+      - DB_PASSWORD=Asafba123
     volumes:
       - db:/app/dbs
 
@@ -15,22 +20,31 @@ services:
       - "8000:8000"
 
   update_db:
+    depends_on:
+      - postgres_db
     build:
       context: ./src/backend
       dockerfile: Dockerfile
+    environment:
+      - DB_NAME=files_db
+      - DB_USERNAME=hello
+      - DB_PASSWORD=Asafba123
     volumes:
       - C:/Users/shoam/OneDrive/Desktop/random folder:/update_db/local_data
 
     ports:
       - "8050:8050"
-  sql_server_db:
+  postgres_db:
     image: bitnami/postgresql:latest
     environment:
-      POSTGRESQL_DB: "hello"
-      POSTGRESQL_USERNAME: "Developer"
-      POSTGRESQL_PASSWORD: "Asafba123!"
+      - POSTGRES_DB=files_db
+      - POSTGRES_USERNAME=hello
+      - POSTGRES_PASSWORD=Asafba123
+
     ports:
       - "5432:5432"
+#    command: ["postgres", "-c", "listen_addresses='*'"]
+
 
 
 

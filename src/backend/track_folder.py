@@ -1,9 +1,9 @@
 import asyncio
 import logging
-import os
-from database.sql_queries_db import *
-from tracker.folder_functions import *
+from folder_functions import *
+from sql_queries_db import *
 queue_count = 0
+
 
 
 def fqueue_count():
@@ -48,3 +48,6 @@ async def track_changes(path):
                     pass
             for file in removed:
                 remove_file_from_db(extract_name(file))
+
+if __name__ == '__main__':
+    asyncio.run(track_changes("/update_db/local_data"))

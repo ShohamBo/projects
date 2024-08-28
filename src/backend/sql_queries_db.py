@@ -1,8 +1,8 @@
 import time
 import pandas as pd
 import psycopg2
-from settings import connection_string
-from ..tracker.folder_functions import extract_data
+from settings import connection_string, database
+from folder_functions import extract_data
 
 is_text_translator = {0: 'text', 1: 'video', -1: 'no clue'}
 db = psycopg2.connect(connection_string)
@@ -22,19 +22,19 @@ def new_connection(connection_string):
 def get_db_live_files():
     global cursor
     return set(
-        f"{row[0]}{row[1]}" for row in cursor.execute('SELECT name,file_type FROM files WHERE time_deleted IS NULL'))
+        f"{row[0]}{row[1]}" for row in cursor.execute('SELECT name,file_type FROM database WHERE time_deleted IS NULL'))
 
 
 def get_db_deleted_files():
     global cursor
     return set(f"{row[0]}{row[1]}" for row in
-               cursor.execute('SELECT name,file_type FROM files WHERE time_deleted IS NOT NULL'))
+               cursor.execute('SELECT name,file_type FROM database WHERE time_deleted IS NOT NULL'))
 
 
 def add_file_to_db(path, db_file):
     global cursor
     cursor.execute('''
-            INSERT INTO files (name, time_created, time_modified, time_deleted, file_size, file_type, is_text)
+            INSERT INTO db (name, time_created, time_modified, time_deleted, file_size, file_type, is_text)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', extract_data(path, db_file))
     commit_db()
@@ -43,7 +43,7 @@ def add_file_to_db(path, db_file):
 def remove_file_from_db(filename):
     global cursor
     cursor.execute('''
-            UPDATE files
+            UPDATE database
             SET time_deleted = ?
             WHERE name = ?
         ''', (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), filename,))
@@ -53,14 +53,14 @@ def remove_file_from_db(filename):
 def is_file_in_db(filename):
     global cursor
     cursor.execute('''
-                        SELECT * FROM files WHERE name=?
+                        SELECT * FROM db WHERE name=?
                     ''', (filename,))
     return bool(cursor.fetchone())
 
 
 def change_returning_files(filename):
     cursor.execute('''
-                    UPDATE files
+                    UPDATE database
                     SET time_deleted=NULL
                     WHERE name=?
                 ''', (filename,))
@@ -69,7 +69,7 @@ def change_returning_files(filename):
 
 def fetch_data():
     db = new_connection(connection_string)
-    df = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', db)
+    df = pd.read_sql_query('SELECT * FROM database WHERE time_deleted IS NULL', db)
     df['is_text'] = df['is_text'].map(is_text_translator)
     return df
 
@@ -78,13 +78,13 @@ def df_full_by_binary_count(is_text):
     db = new_connection(connection_string)
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
-            'SELECT * FROM files WHERE time_deleted IS NULL AND is_text = ?', db,
+            'SELECT * FROM database WHERE time_deleted IS NULL AND is_text = ?', db,
             params=(is_text,))
         df_modified['is_text'] = df_modified['is_text'].map(
             is_text_translator)  # change the description on the right
         return df_modified
     else:
-        df_modified = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', db)
+        df_modified = pd.read_sql_query('SELECT * FROM database WHERE time_deleted IS NULL', db)
         df_modified['is_text'] = df_modified['is_text'].map(
             is_text_translator)  # change the description on the right
         return df_modified
@@ -94,11 +94,11 @@ def df_count_by_binary_type(is_text):
     db = new_connection(connection_string)
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
-            'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL AND is_text = ? GROUP BY file_size',
+            'SELECT file_size, COUNT(*) as count FROM database WHERE time_deleted IS NULL AND is_text = ? GROUP BY file_size',
             db,
             params=(is_text,))
         return df_modified
     else:
         df = pd.read_sql_query(
-            'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL GROUP BY file_size', db)
+            'SELECT file_size, COUNT(*) as count FROM database WHERE time_deleted IS NULL GROUP BY file_size', db)
         return df
