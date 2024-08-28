@@ -1,3 +1,4 @@
+import __init__
 import asyncio
 import logging
 from folder_functions import *

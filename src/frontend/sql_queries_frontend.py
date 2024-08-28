@@ -18,7 +18,7 @@ def new_connection(connection_string):
 
 def fetch_data():
     db = new_connection(connection_string)
-    df = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', db)
+    df = pd.read_sql_query('SELECT * FROM files_db WHERE time_deleted IS NULL', db)
     df['is_text'] = df['is_text'].map(is_text_translator)
     return df
 
@@ -27,13 +27,13 @@ def df_full_by_binary_count(is_text):
     db = new_connection(connection_string)
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
-            'SELECT * FROM files WHERE time_deleted IS NULL AND is_text = ?', db,
+            'SELECT * FROM files_db WHERE time_deleted IS NULL AND is_text = ?', db,
             params=(is_text,))
         df_modified['is_text'] = df_modified['is_text'].map(
             is_text_translator)  # change the description on the right
         return df_modified
     else:
-        df_modified = pd.read_sql_query('SELECT * FROM files WHERE time_deleted IS NULL', db)
+        df_modified = pd.read_sql_query('SELECT * FROM files_db WHERE time_deleted IS NULL', db)
         df_modified['is_text'] = df_modified['is_text'].map(
             is_text_translator)  # change the description on the right
         return df_modified
@@ -43,11 +43,11 @@ def df_count_by_binary_type(is_text):
     db = new_connection(connection_string)
     if is_text or is_text == 0:
         df_modified = pd.read_sql_query(
-            'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL AND is_text = ? GROUP BY file_size',
+            'SELECT file_size, COUNT(*) as count FROM files_db WHERE time_deleted IS NULL AND is_text = ? GROUP BY file_size',
             db,
             params=(is_text,))
         return df_modified
     else:
         df = pd.read_sql_query(
-            'SELECT file_size, COUNT(*) as count FROM files WHERE time_deleted IS NULL GROUP BY file_size', db)
+            'SELECT file_size, COUNT(*) as count FROM files_db WHERE time_deleted IS NULL GROUP BY file_size', db)
         return df

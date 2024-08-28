@@ -87,4 +87,4 @@ async def run_dashboard():
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
+    asyncio.run(run_dashboard())
