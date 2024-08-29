@@ -8,7 +8,9 @@ services:
       context: ./src/frontend
       dockerfile: Dockerfile  # Specify the Dockerfile if not named 'Dockerfile'
     depends_on:
-      - update_db
+      postgres_db:
+        condition: service_healthy
+
     environment:
       - DB_NAME=files_db
       - DB_USERNAME=hello
@@ -21,7 +23,8 @@ services:
 
   update_db:
     depends_on:
-      - postgres_db
+      postgres_db:
+        condition: service_healthy
     build:
       context: ./src/backend
       dockerfile: Dockerfile
@@ -40,7 +43,11 @@ services:
       - POSTGRES_DB=files_db
       - POSTGRES_USERNAME=hello
       - POSTGRES_PASSWORD=Asafba123
-
+    healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+        interval: 5s
+        timeout: 5s
+        retries: 5
     ports:
       - "5432:5432"
 #    command: ["postgres", "-c", "listen_addresses='*'"]

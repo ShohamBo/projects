@@ -13,7 +13,6 @@ def extract_file_type(filename):
 
 # Extracts the data from a single file
 def extract_data(path, filename):
-    time.sleep(2)
     full_path = os.path.join(path, filename)
     if not os.path.isfile(full_path):
         return None

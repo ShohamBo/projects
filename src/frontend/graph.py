@@ -42,7 +42,6 @@ async def run_dashboard():
         dash.dependencies.Output('file_size_histogram', 'figure'),
         dash.dependencies.Output('text_or_binary_files', 'figure'),
         dash.dependencies.Output('file_type_pie', 'figure'),
-        dash.dependencies.Output('queue_count', 'children'),
         [dash.dependencies.Input('updates', 'n_intervals'),
          dash.dependencies.Input('all_files', 'n_clicks'),
          dash.dependencies.Input('text_only', 'n_clicks'),

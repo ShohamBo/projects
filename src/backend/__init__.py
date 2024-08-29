@@ -10,5 +10,6 @@ cursor.execute('''
         time_deleted TEXT,
         file_size INTEGER,
         file_type TEXT,
-        is_text BOOLEAN NOT NULL)
+        is_text INTEGER)
     ''')
+conn.commit()

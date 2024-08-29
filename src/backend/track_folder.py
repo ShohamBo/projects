@@ -6,9 +6,8 @@ from sql_queries_db import *
 queue_count = 0
 
 
-
-def fqueue_count():
-    return queue_count
+# def fqueue_count():
+#     return queue_count
 
 
 log_file_path = '/app/log/app.log'
