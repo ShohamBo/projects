@@ -22,6 +22,10 @@ spec:
       labels:
         app: dashboard
     spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: [ 'sh', '-c', 'until nslookup postgres-db;sleep 2; done;' ]
       containers:
         - image: shohambo/dashboard:latest
           name: dashboard
@@ -33,7 +37,7 @@ spec:
             - name: DB_USERNAME
               value: hello
             - name: DB_HOST
-              value: postgres-db
+              value: postgresdb
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -81,6 +85,10 @@ spec:
         kompose.cmd: C:\bins\kompose.exe --file compose.yaml convert
         kompose.version: 1.34.0 (cbf2835db)
     spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: [ 'sh', '-c','until nslookup postgresdb; sleep 2; done' ]
       containers:
       - image: shohambo/update-db
         name: update-db
@@ -95,7 +103,7 @@ spec:
           - name: DB_USERNAME
             value: hello
           - name: DB_HOST
-            value: postgres-db
+            value: postgresdb
         volumeMounts:
         - name: local-data
           mountPath: /update-db/local_data
@@ -127,34 +135,34 @@ metadata:
   annotations:
     kompose.cmd: C:\bins\kompose.exe --file compose.yaml convert
     kompose.version: 1.34.0 (cbf2835db)
-  name: postgres-db
+  name: postgresdb
   labels:
-    app: postgres-db
+    app: postgresdb
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres-db
+      app: postgresdb
   template:
     metadata:
       labels:
-        app: postgres-db
+        app: postgresdb
       annotations:
         kompose.cmd: C:\bins\kompose.exe --file compose.yaml convert
         kompose.version: 1.34.0 (cbf2835db)
     spec:
       containers:
         - image: bitnami/postgresql:latest
-          name: postgres-db
+          name: postgresdb
           env:
-            - name: DB_NAME
-              value: files_db
-            - name: DB_PASSWORD
-              value: Asafba123
-            - name: DB_USERNAME
-              value: hello
-            - name: DB_HOST
-              value: postgres-db
+            - name: POSTGRES_DB
+              value: "files_db"
+            - name: POSTGRES_USER
+              value: "hello"
+            - name: POSTGRES_PASSWORD
+              value: "Asafba123"
+            - name: POSTGRES_HOST
+              value: "postgresdb"
           livenessProbe:
             exec:
               command:
@@ -176,15 +184,14 @@ metadata:
   annotations:
     kompose.cmd: C:\bins\kompose.exe --file compose.yaml convert
     kompose.version: 1.34.0 (cbf2835db)
-  name: postgres-db
+  name: postgresdb
   labels:
-    app: postgres-db
+    app: postgresdb
 spec:
-  type: ExternalName
-  externalName: "postgres-db"
+  type: ClusterIP
   ports:
     - name: "5432"
       port: 5432
       targetPort: 5432
   selector:
-    app: postgres-db
+    app: postgresdb

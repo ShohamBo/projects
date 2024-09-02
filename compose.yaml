@@ -8,14 +8,14 @@ services:
       context: ./src/frontend
       dockerfile: Dockerfile
     depends_on:
-      postgres-db:
+      postgresdb:
         condition: service_healthy
 
     environment:
       - DB_NAME=files_db
       - DB_USERNAME=hello
       - DB_PASSWORD=Asafba123
-      - DB_HOST=postgres-db
+      - DB_HOST=postgresdb
     volumes:
       - db:/app/dbs
 
@@ -24,7 +24,7 @@ services:
 
   update_db:
     depends_on:
-      postgres-db:
+      postgresdb:
         condition: service_healthy
     build:
       context: ./src/backend
@@ -33,19 +33,19 @@ services:
       - DB_NAME=files_db
       - DB_USERNAME=hello
       - DB_PASSWORD=Asafba123
-      - DB_HOST=postgres-db
+      - DB_HOST=postgresdb
     volumes:
       - C:/Users/shoam/OneDrive/Desktop/random folder:/update_db/local_data
 
     ports:
       - "8050:8050"
-  postgres-db:
+  postgresdb:
     image: bitnami/postgresql:latest
     environment:
       - POSTGRES_DB=files_db
       - POSTGRES_USER=hello
       - POSTGRES_PASSWORD=Asafba123
-      - POSTGRES_HOST=postgres-db
+      - POSTGRES_HOST=postgresdb
     healthcheck:
         test: [ "CMD-SHELL", "pg_isready -U postgres" ]
         interval: 5s
