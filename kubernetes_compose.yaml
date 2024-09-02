@@ -23,7 +23,7 @@ spec:
         app: dashboard
     spec:
       containers:
-        - image: dashboard  # Local image name
+        - image: shohambo/dashboard:latest
           name: dashboard
           env:
             - name: DB_NAME
@@ -32,7 +32,8 @@ spec:
               value: Asafba123
             - name: DB_USERNAME
               value: hello
-          imagePullPolicy: Never
+            - name: DB_HOST
+              value: postgres-db
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -53,7 +54,6 @@ spec:
     - name: "8000"
       port: 8000
       targetPort: 8000
-      nodePort: 30000
   selector:
     app: dashboard
 ---
@@ -82,19 +82,20 @@ spec:
         kompose.version: 1.34.0 (cbf2835db)
     spec:
       containers:
-      - name: update-db
-        image: update-db
-        imagePullPolicy: Never
+      - image: shohambo/update-db
+        name: update-db
         ports:
         - containerPort: 8050
           protocol: TCP
         env:
-        - name: DB_NAME
-          value: files_db
-        - name: DB_PASSWORD
-          value: Asafba123
-        - name: DB_USERNAME
-          value: hello
+          - name: DB_NAME
+            value: files_db
+          - name: DB_PASSWORD
+            value: Asafba123
+          - name: DB_USERNAME
+            value: hello
+          - name: DB_HOST
+            value: postgres-db
         volumeMounts:
         - name: local-data
           mountPath: /update-db/local_data
@@ -143,23 +144,27 @@ spec:
         kompose.version: 1.34.0 (cbf2835db)
     spec:
       containers:
-        - env:
-            - name: POSTGRES_DB
+        - image: bitnami/postgresql:latest
+          name: postgres-db
+          env:
+            - name: DB_NAME
               value: files_db
-            - name: POSTGRES_PASSWORD
+            - name: DB_PASSWORD
               value: Asafba123
-            - name: POSTGRES_USER  # Updated environment variable
+            - name: DB_USERNAME
               value: hello
-          image: bitnami/postgresql:latest
-          imagePullPolicy: IfNotPresent
+            - name: DB_HOST
+              value: postgres-db
           livenessProbe:
             exec:
               command:
-                - pg_isready -U postgres
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 10
             failureThreshold: 5
             periodSeconds: 5
             timeoutSeconds: 5
-          name: postgres-db
           ports:
             - containerPort: 5432
               protocol: TCP
@@ -175,6 +180,8 @@ metadata:
   labels:
     app: postgres-db
 spec:
+  type: ExternalName
+  externalName: "postgres-db"
   ports:
     - name: "5432"
       port: 5432
