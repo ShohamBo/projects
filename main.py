@@ -4,7 +4,7 @@
 #
 #
 # async def main():
-#     path = 'local_data'
+#     path = 'local-data'
 #     await asyncio.gather(track_changes(path), run_dashboard())  # both function run indefinitely
 #
 #

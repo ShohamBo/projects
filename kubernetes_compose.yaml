@@ -25,19 +25,17 @@ spec:
       initContainers:
         - name: wait-for-db
           image: busybox
-          command: [ 'sh', '-c', 'until nslookup postgres-db;sleep 2; done;' ]
+          command: ['sh', '-c', 'sleep 90']
       containers:
-        - image: shohambo/dashboard:latest
+        - image: shohambo/dashboard:news
           name: dashboard
           env:
-            - name: DB_NAME
+            - name: POSTGRES_DB
               value: files_db
-            - name: DB_PASSWORD
-              value: Asafba123
-            - name: DB_USERNAME
+            - name: POSTGRES_USER
               value: hello
-            - name: DB_HOST
-              value: postgresdb
+            - name: POSTGRES_PASSWORD
+              value: Asafba123
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -88,29 +86,28 @@ spec:
       initContainers:
         - name: wait-for-db
           image: busybox
-          command: [ 'sh', '-c','until nslookup postgresdb; sleep 2; done' ]
+          command: ['sh', '-c', 'sleep 70']
       containers:
-      - image: shohambo/update-db
+      - image: shohambo/update-db:news
         name: update-db
         ports:
         - containerPort: 8050
           protocol: TCP
         env:
-          - name: DB_NAME
+          - name: POSTGRES_DB
             value: files_db
-          - name: DB_PASSWORD
-            value: Asafba123
-          - name: DB_USERNAME
+          - name: POSTGRES_USER
             value: hello
-          - name: DB_HOST
-            value: postgresdb
+          - name: POSTGRES_PASSWORD
+            value: Asafba123
         volumeMounts:
         - name: local-data
-          mountPath: /update-db/local_data
+          mountPath: /update-db/local-data
       volumes:
       - name: local-data
         hostPath:
-          path: /mnt/c/Users/shoam/OneDrive/Desktop/random folder
+          path: /mnt/c/Users/shoam/OneDrive/Desktop/randomfolder
+          type: Directory
 ---
 apiVersion: v1
 kind: Service
@@ -156,13 +153,11 @@ spec:
           name: postgresdb
           env:
             - name: POSTGRES_DB
-              value: "files_db"
+              value: files_db
             - name: POSTGRES_USER
-              value: "hello"
+              value: hello
             - name: POSTGRES_PASSWORD
-              value: "Asafba123"
-            - name: POSTGRES_HOST
-              value: "postgresdb"
+              value: Asafba123
           livenessProbe:
             exec:
               command:
