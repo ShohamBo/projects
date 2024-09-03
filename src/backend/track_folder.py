@@ -9,10 +9,8 @@ queue_count = 0
 #     return queue_count
 
 
-
 # tracks the changes in folder
 async def track_changes(path):
-    print(f'Tracking {path}')
     global queue_count
     while True:
         await asyncio.sleep(0.2)
@@ -24,7 +22,6 @@ async def track_changes(path):
             removed = db_live_files - folder_files
             cur_count = 0
             for file in added:
-                print("here")
                 cur_count = cur_count + 1
                 queue_count = len(added) - cur_count
                 if extract_data(path, file) is None:
