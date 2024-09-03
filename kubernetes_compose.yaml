@@ -83,10 +83,10 @@ spec:
         kompose.cmd: C:\bins\kompose.exe --file compose.yaml convert
         kompose.version: 1.34.0 (cbf2835db)
     spec:
-      initContainers:
-        - name: wait-for-db
-          image: busybox
-          command: ['sh', '-c', 'sleep 70']
+#      initContainers:
+#        - name: wait-for-db
+#          image: busybox
+#          command: ['sh', '-c', 'sleep 70']
       containers:
       - image: shohambo/update-db:news
         name: update-db
@@ -106,8 +106,9 @@ spec:
       volumes:
       - name: local-data
         hostPath:
-          path: /mnt/c/Users/shoam/OneDrive/Desktop/randomfolder
+          path: /mnt/data
           type: Directory
+
 ---
 apiVersion: v1
 kind: Service
