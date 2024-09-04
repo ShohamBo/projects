@@ -5,10 +5,6 @@ from sql_queries_db import *
 queue_count = 0
 
 
-# def fqueue_count():
-#     return queue_count
-
-
 # tracks the changes in folder
 async def track_changes(path):
     global queue_count
@@ -24,6 +20,7 @@ async def track_changes(path):
             for file in added:
                 cur_count = cur_count + 1
                 queue_count = len(added) - cur_count
+                insert_files_waiting(queue_count)
                 if extract_data(path, file) is None:
                     continue
                 if not is_file_in_db(extract_name(file)) and file not in db_deleted_files:

@@ -13,6 +13,7 @@ def extract_file_type(filename):
 
 # Extracts the data from a single file
 def extract_data(path, filename):
+    time.sleep(2)
     full_path = os.path.join(path, filename)
     if not os.path.isfile(full_path):
         return None
@@ -25,4 +26,4 @@ def extract_data(path, filename):
     text = mime_type.from_file(full_path)
     is_text = 0 if 'text' in text else 1 if 'video' in text or 'img' in text or 'image' in text else -1
     return (
-        extract_name(filename), time_created, time_modified, time_removed, file_size, file_type, int(is_text))
+        extract_name(filename), time_created, time_modified, time_removed, file_size, file_type, int(is_text), None)

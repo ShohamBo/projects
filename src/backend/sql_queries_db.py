@@ -36,8 +36,8 @@ def get_db_deleted_files():
 def add_file_to_db(path, db_file):
     global cursor
     cursor.execute('''
-            INSERT INTO files_db (name, time_created, time_modified, time_deleted, file_size, file_type, is_text)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO files_db (name, time_created, time_modified, time_deleted, file_size, file_type, is_text,count_files_waiting)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ''', extract_data(path, db_file))
     commit_db()
 
@@ -61,12 +61,23 @@ def is_file_in_db(filename):
 
 
 def change_returning_files(filename):
+    global cursor
     cursor.execute('''
             UPDATE files_db
             SET time_deleted=NULL
             WHERE name=%s
         ''', (filename,))
     commit_db()
+
+def insert_files_waiting(count):
+    global cursor
+    print("inserted", count)
+    cursor.execute('''
+    UPDATE files_db
+    SET count_files_waiting = %s
+    WHERE name=%s
+    ''', (count, '-111'))
+
 
 
 

@@ -51,3 +51,12 @@ def df_count_by_binary_type(is_text):
         df = pd.read_sql_query(
             'SELECT file_size, COUNT(*) as count FROM files_db WHERE time_deleted IS NULL GROUP BY file_size', db)
         return df
+
+
+def get_count_files_waiting():
+    db = new_connection(connection_string)
+    cursor = db.cursor()
+    cursor.execute('SELECT SUM(count_files_waiting) FROM files_db WHERE count_files_waiting IS NOT NULL')
+    count = cursor.fetchone()[0]
+    return count
+

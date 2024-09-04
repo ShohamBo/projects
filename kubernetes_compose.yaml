@@ -27,7 +27,7 @@ spec:
           image: busybox
           command: ['sh', '-c', 'sleep 90']
       containers:
-        - image: shohambo/dashboard:news
+        - image: shohambo/dashboard:count_fix
           name: dashboard
           env:
             - name: POSTGRES_DB
@@ -97,7 +97,7 @@ spec:
 #          image: busybox
 #          command: ['sh', '-c', 'sleep 70']
       containers:
-      - image: shohambo/update-db:news
+      - image: shohambo/update-db:withcount
         name: update-db
         ports:
         - containerPort: 8050
