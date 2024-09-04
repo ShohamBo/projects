@@ -31,11 +31,20 @@ spec:
           name: dashboard
           env:
             - name: POSTGRES_DB
-              value: files_db
+              valueFrom:
+                secretKeyRef:
+                  name: db-data
+                  key: POSTGRES_DB
             - name: POSTGRES_USER
-              value: hello
+              valueFrom:
+                secretKeyRef:
+                  name: db-data
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: Asafba123
+              valueFrom:
+                secretKeyRef:
+                  name: db-data
+                  key: POSTGRES_PASSWORD
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -95,11 +104,20 @@ spec:
           protocol: TCP
         env:
           - name: POSTGRES_DB
-            value: files_db
+            valueFrom:
+              secretKeyRef:
+                name: db-data
+                key: POSTGRES_DB
           - name: POSTGRES_USER
-            value: hello
+            valueFrom:
+              secretKeyRef:
+                name: db-data
+                key: POSTGRES_USER
           - name: POSTGRES_PASSWORD
-            value: Asafba123
+            valueFrom:
+              secretKeyRef:
+                name: db-data
+                key: POSTGRES_PASSWORD
         volumeMounts:
         - name: local-data
           mountPath: /update-db/local-data
@@ -153,12 +171,21 @@ spec:
         - image: bitnami/postgresql:latest
           name: postgresdb
           env:
-            - name: POSTGRES_DB
-              value: files_db
-            - name: POSTGRES_USER
-              value: hello
-            - name: POSTGRES_PASSWORD
-              value: Asafba123
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: db-data
+                key: POSTGRES_DB
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-data
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-data
+                key: POSTGRES_PASSWORD
           livenessProbe:
             exec:
               command:
@@ -191,3 +218,12 @@ spec:
       targetPort: 5432
   selector:
     app: postgresdb
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-data
+data:
+  POSTGRES_DB: ZmlsZXNfZGJfY29uZmln
+  POSTGRES_USER: aGVsbG8=
+  POSTGRES_PASSWORD: QXNhZmJhMTIz
